@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Michael ❤️ Daoud</title>
+
+  <style>
+    :root{
+      --red:#e11d48;
+      --soft-red:#ff4d6d;
+      --bg:#0b0b10;
+      --card:rgba(255,255,255,.08);
+      --text:#f8fafc;
+      --muted:rgba(248,250,252,.75);
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+      --radius:18px;
+      --yesGlow:0 0 0 6px rgba(225,29,72,.18);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      background:
+        radial-gradient(1000px 600px at 50% 20%, rgba(225,29,72,.18), transparent 60%),
+        radial-gradient(900px 700px at 20% 80%, rgba(255,77,109,.12), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      overflow:hidden;
+    }
+    .stage{
+      position:relative;
+      width:min(920px,92vw);
+      height:min(620px,86vh);
+      margin:0 auto;
+      display:grid;
+      place-items:center;
+      padding:18px;
+    }
+    .screen{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(12px);
+      transition:opacity 450ms ease, transform 450ms ease;
+    }
+    .screen.active{
+      opacity:1;
+      pointer-events:auto;
+      transform:translateY(0);
+    }
+    .card{
+      width:min(760px,92vw);
+      padding:clamp(18px,3vw,34px);
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(10px);
+      text-align:center;
+    }
+    h1,p{margin:0}
+    h1{
+      font-size:clamp(26px,4vw,44px);
+      letter-spacing:-.02em;
+      margin-bottom:10px;
+    }
+    p{
+      font-size:clamp(16px,2.2vw,20px);
+      color:var(--muted);
+      line-height:1.35;
+      margin-top:8px;
+      white-space:pre-line;
+    }
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      flex-wrap:wrap;
+      margin-top:22px;
+    }
+    button{
+      border:none;
+      cursor:pointer;
+      border-radius:999px;
+      padding:14px 22px;
+      font-size:18px;
+      font-weight:800;
+      transition:transform 140ms ease, box-shadow 140ms ease, opacity 140ms ease;
+      user-select:none;
+    }
+    button:active{transform:translateY(2px) scale(.99)}
+    .btn-primary{
+      background:var(--red);
+      color:#fff;
+      box-shadow:0 14px 30px rgba(225,29,72,.30);
+    }
+    .btn-primary:hover{box-shadow:0 18px 42px rgba(225,29,72,.36)}
+    .btn-yes{
+      background:linear-gradient(135deg,var(--red),var(--soft-red));
+      color:#fff;
+      padding:16px 28px;
+      font-size:22px;
+      box-shadow:0 18px 46px rgba(225,29,72,.38);
+    }
+    .btn-yes:focus-visible{outline:none; box-shadow:var(--yesGlow), 0 18px 46px rgba(225,29,72,.38)}
+    .btn-no{
+      background:rgba(255,255,255,.12);
+      color:rgba(255,255,255,.75);
+      padding:8px 12px;
+      font-size:12px;
+      opacity:.55;
+    }
+    .btn-no:hover{opacity:.75}
+
+    /* hearts */
+    .hearts-layer{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .heart{
+      position:absolute;
+      width:22px; height:22px;
+      transform:rotate(45deg);
+      background:var(--red);
+      opacity:.9;
+      filter:drop-shadow(0 8px 10px rgba(0,0,0,.25));
+      animation:floatUp 2.2s ease-out forwards;
+    }
+    .heart::before,.heart::after{
+      content:"";
+      position:absolute;
+      width:22px; height:22px;
+      background:inherit;
+      border-radius:50%;
+    }
+    .heart::before{left:-11px; top:0}
+    .heart::after{left:0; top:-11px}
+    @keyframes floatUp{
+      0%{transform:translateY(0) rotate(45deg) scale(.7); opacity:0}
+      15%{opacity:.95}
+      100%{transform:translateY(-220px) rotate(45deg) scale(1.2); opacity:0}
+    }
+
+    /* click me burst heart */
+    .clickMeWrap{position:relative; display:grid; place-items:center; gap:18px}
+    .bigHeartBurst{
+      position:absolute;
+      width:180px; height:180px;
+      opacity:0;
+      transform:translateY(10px) scale(.8) rotate(45deg);
+      background:linear-gradient(135deg,var(--red),var(--soft-red));
+      border-radius:22px;
+      filter:drop-shadow(0 22px 40px rgba(225,29,72,.28));
+      pointer-events:none;
+    }
+    .bigHeartBurst::before,.bigHeartBurst::after{
+      content:"";
+      position:absolute;
+      width:180px; height:180px;
+      border-radius:50%;
+      background:inherit;
+    }
+    .bigHeartBurst::before{left:-90px; top:0}
+    .bigHeartBurst::after{left:0; top:-90px}
+    .bigHeartBurst.show{animation:burst 900ms ease forwards}
+    @keyframes burst{
+      0%{opacity:0; transform:translateY(10px) scale(.7) rotate(45deg)}
+      35%{opacity:1; transform:translateY(-6px) scale(1.05) rotate(45deg)}
+      100%{opacity:0; transform:translateY(-20px) scale(1.25) rotate(45deg)}
+    }
+
+    /* NO dodge area (screen 2) */
+    .no-dodge-area{
+      position:relative;
+      width:min(520px,90vw);
+      height:110px;
+      margin:0 auto;
+    }
+    .noBtn{
+      position:absolute;
+      left:65%;
+      top:55%;
+      transform:translate(-50%,-50%);
+    }
+
+    /* photo */
+    .photoBox{
+      width:min(420px,78vw);
+      aspect-ratio:4/5;
+      margin:18px auto 0;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 18px 50px rgba(0,0,0,.35);
+      background:rgba(255,255,255,.06);
+      display:grid;
+      place-items:center;
+    }
+    .photoBox img{width:100%; height:100%; object-fit:cover; display:block}
+
+    /* final white theme */
+    .finalTheme{
+      background:#fff;
+      color:#111827;
+      border:1px solid rgba(0,0,0,.08);
+    }
+    .finalTheme p{color:rgba(17,24,39,.75)}
+    .finalHearts .heart{background:var(--red); opacity:.95; filter:none}
+
+    /* slideshow */
+    .slideshow{
+      width:min(720px,92vw);
+      height:min(520px,70vh);
+      margin:18px auto 0;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(0,0,0,.10);
+      box-shadow:0 18px 55px rgba(0,0,0,.25);
+      background:#fff;
+      display:grid;
+      place-items:center;
+    }
+    .slideshow img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:none;
+    }
+    .slideshow img.fit-contain{
+      object-fit:contain;
+      background:#fff;
+    }
+    .slideshow img.active{
+      display:block;
+      animation:fadeIn 450ms ease;
+    }
+    @keyframes fadeIn{
+      from{opacity:0; transform:scale(1.02)}
+      to{opacity:1; transform:scale(1)}
+    }
+
+    .tiny-note{margin-top:14px; font-size:13px; opacity:.7}
+
+    @media (max-width:420px){
+      .row{gap:12px}
+      .btn-yes{width:100%}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="stage">
+
+    <!-- Screen 1 -->
+    <section class="screen active" id="screen1">
+      <div class="card">
+        <div class="clickMeWrap">
+          <div class="bigHeartBurst" id="bigHeartBurst"></div>
+          <h1>Hey Michael 💘</h1>
+          <p>Click to start. I actually made something for you this time around.</p>
+          <div class="row">
+            <button class="btn-primary" id="clickMeBtn">Click Me</button>
+          </div>
+          <div class="tiny-note">(*trust 😌*)</div>
+        </div>
+      </div>
+      <div class="hearts-layer" id="hearts1"></div>
+    </section>
+
+    <!-- Screen 2 -->
+    <section class="screen" id="screen2">
+      <div class="card">
+        <h1>Just have a few questions for you baby</h1>
+        <p>I know you might have to think hard about this, but do you love someone?</p>
+
+        <div class="row" style="margin-top:26px;">
+          <button class="btn-yes" id="yes1">YES</button>
+        </div>
+
+        <div class="no-dodge-area" id="noArea">
+          <button class="btn-no noBtn" id="no1" aria-disabled="true">no</button>
+        </div>
+
+        <div class="tiny-note">also the “no” may move a bit</div>
+      </div>
+      <div class="hearts-layer" id="hearts2"></div>
+    </section>
+
+    <!-- Screen 3 -->
+    <section class="screen" id="screen3">
+      <div class="card">
+        <h1>Really?</h1>
+        <p>Does this happen to be the someone? </p>
+
+        <div class="photoBox">
+          <img src="me (1).jpg" alt="Daoud" />
+        </div>
+
+        <div class="row">
+          <button class="btn-yes" id="yes2">YES</button>
+          <button class="btn-no" id="no2">no</button>
+        </div>
+
+        <div class="tiny-note">(??)</div>
+      </div>
+      <div class="hearts-layer" id="hearts3"></div>
+    </section>
+
+    <!-- Screen 4 -->
+    <section class="screen" id="screen4">
+      <div class="card finalTheme">
+        <h1>Last question 💌</h1>
+        <p>Michael, I know you got a lot going on right now 
+          and getting put through it at set. But if you have time 
+Will you be my Valentine? ❤️</p>
+
+        <div class="row" style="margin-top:26px;">
+          <button class="btn-yes" id="yes3">YES</button>
+          <button class="btn-no" id="no3">no</button>
+        </div>
+
+        <div class="tiny-note">(There's really only one answer fr)</div>
+      </div>
+      <div class="hearts-layer finalHearts" id="hearts4"></div>
+    </section>
+
+    <!-- Screen 5 -->
+    <section class="screen" id="screen5">
+      <div class="card finalTheme">
+        <h1>He says YES 😭❤️</h1>
+        <p>I really do love you tho, and I enjoy every moment I'm with you❤️</p>
+
+        <div class="slideshow" id="slideshow">
+          <img src="1.jpg" alt="Memory 1" class="active"/>
+          <img src="3.jpg" alt="Memory 3" class="fit-contain"/>
+          <img src="5.jpg" alt="Memory 5"/>
+          <img src="7.jpg" alt="Memory 7"/>
+          <img src="8.jpg" alt="Memory 8" class="fit-contain"/>
+        </div>
+
+        <div id="appleMusicWrap" style="display:none; width:100%; max-width:660px; margin:14px auto 0;">
+          <button class="btn-primary" id="applePlayBtn" style="margin-bottom:10px;">Tap to play</button>
+          <iframe allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+            frameborder="0"
+            height="175"
+            style="width:100%;max-width:660px;overflow:hidden;border-radius:10px;"
+            sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+            src="https://embed.music.apple.com/us/song/agora-hills/1704922308"></iframe>
+          <div class="tiny-note" style="margin-top:6px;">Tap the player if it doesn’t start.</div>
+        </div>
+
+        <div class="row">
+          <button class="btn-primary" id="restart">Replay</button>
+        </div>
+
+        <div class="tiny-note"> Many more to come. See you then 😘</div>
+      </div>
+      <div class="hearts-layer finalHearts" id="hearts5"></div>
+    </section>
+
+  </div>
+
+  <script>
+    // Screens
+    const screens = ["screen1","screen2","screen3","screen4","screen5"]
+      .map(id => document.getElementById(id));
+
+    function showScreen(n){
+      screens.forEach((s,i)=>s.classList.toggle("active", i===n));
+    }
+
+    // Heart spawning
+    function spawnHeart(layerEl, x=null, y=null){
+      const heart = document.createElement("div");
+      heart.className = "heart";
+
+      const rect = layerEl.getBoundingClientRect();
+      const left = (x ?? (Math.random()*rect.width));
+      const top  = (y ?? (rect.height - 40));
+
+      heart.style.left = `${left}px`;
+      heart.style.top  = `${top}px`;
+
+      const size = 14 + Math.random()*16;
+      heart.style.width = `${size}px`;
+      heart.style.height = `${size}px`;
+      heart.style.opacity = `${0.65 + Math.random()*0.35}`;
+
+      const drift = (Math.random()*120) - 60;
+      heart.animate([
+        { transform:"translateY(0) rotate(45deg) scale(0.8)" },
+        { transform:`translate(${drift}px, -260px) rotate(45deg) scale(1.25)` }
+      ], { duration: 2200 + Math.random()*700, easing:"ease-out", fill:"forwards" });
+
+      layerEl.appendChild(heart);
+      setTimeout(()=>heart.remove(), 3000);
+    }
+
+    function burstHearts(layerEl, count=16){
+      const rect = layerEl.getBoundingClientRect();
+      for(let i=0;i<count;i++){
+        spawnHeart(layerEl,
+          rect.width/2 + (Math.random()*120 - 60),
+          rect.height*0.72 + (Math.random()*40 - 20)
+        );
+      }
+    }
+
+    function startAmbientHearts(layerEl, intensity=1){
+      let alive = true;
+      const tick = () => {
+        if(!alive) return;
+        const n = Math.random() < 0.55 ? 1 : 2;
+        for(let i=0;i<n*intensity;i++) spawnHeart(layerEl);
+        setTimeout(tick, 420 + Math.random()*220);
+      };
+      tick();
+      return () => { alive = false; };
+    }
+
+    // Layers
+    const hearts1 = document.getElementById("hearts1");
+    const hearts2 = document.getElementById("hearts2");
+    const hearts3 = document.getElementById("hearts3");
+    const hearts4 = document.getElementById("hearts4");
+    const hearts5 = document.getElementById("hearts5");
+
+    let stopHearts = null;
+    function setHeartsForScreen(i){
+      if(stopHearts) stopHearts();
+      stopHearts = null;
+      if(i===0) stopHearts = startAmbientHearts(hearts1, 1);
+      if(i===1) stopHearts = startAmbientHearts(hearts2, 1);
+      if(i===2) stopHearts = startAmbientHearts(hearts3, 1);
+      if(i===3) stopHearts = startAmbientHearts(hearts4, 2);
+      if(i===4) stopHearts = startAmbientHearts(hearts5, 2);
+    }
+    setHeartsForScreen(0);
+
+    // Buttons
+    const clickMeBtn = document.getElementById("clickMeBtn");
+    const bigHeartBurst = document.getElementById("bigHeartBurst");
+
+    const yes1 = document.getElementById("yes1");
+    const no1  = document.getElementById("no1");
+    const noArea = document.getElementById("noArea");
+
+    const yes2 = document.getElementById("yes2");
+    const no2  = document.getElementById("no2");
+
+    const yes3 = document.getElementById("yes3");
+    const no3  = document.getElementById("no3");
+
+    const restart = document.getElementById("restart");
+    const appleMusicWrap = document.getElementById("appleMusicWrap");
+    const applePlayBtn = document.getElementById("applePlayBtn");
+
+    // Screen 1 -> 2
+    clickMeBtn.addEventListener("click", () => {
+      bigHeartBurst.classList.remove("show");
+      void bigHeartBurst.offsetWidth; // restart animation
+      bigHeartBurst.classList.add("show");
+
+      burstHearts(hearts1, 18);
+
+      setTimeout(() => {
+        showScreen(1);
+        setHeartsForScreen(1);
+      }, 650);
+    });
+
+    // Screen 2 NO impossible + dodges
+    no1.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    function moveNoButton(){
+      const area = noArea.getBoundingClientRect();
+      const btn = no1.getBoundingClientRect();
+      const pad = 10;
+
+      const maxX = area.width - btn.width - pad;
+      const maxY = area.height - btn.height - pad;
+
+      const x = pad + Math.random() * Math.max(0, maxX - pad);
+      const y = pad + Math.random() * Math.max(0, maxY - pad);
+
+      no1.style.left = `${x}px`;
+      no1.style.top  = `${y}px`;
+      no1.style.transform = "none";
+    }
+
+    noArea.addEventListener("mousemove", moveNoButton);
+    noArea.addEventListener("touchstart", () => moveNoButton(), { passive:true });
+
+    // Screen 2 YES -> 3
+    yes1.addEventListener("click", () => {
+      burstHearts(hearts2, 20);
+      setTimeout(() => {
+        showScreen(2);
+        setHeartsForScreen(2);
+      }, 350);
+    });
+
+    // Screen 3 NO shrinks + runs away 😈
+    let noSize = 1;
+
+    function shrinkNo(){
+      burstHearts(hearts3, 8);
+
+      if(noSize > 0.22){
+        noSize -= 0.14;
+        no2.style.transform = `scale(${noSize})`;
+      }
+
+      const x = Math.random()*220 - 110;
+      const y = Math.random()*140 - 70;
+
+      no2.style.position = "relative";
+      no2.style.left = x + "px";
+      no2.style.top  = y + "px";
+
+      if(noSize <= 0.22){
+        no2.textContent = "…";
+      }
+    }
+
+    no2.addEventListener("mouseover", shrinkNo);
+    no2.addEventListener("click", shrinkNo);
+
+    // Screen 3 YES -> 4
+    yes2.addEventListener("click", () => {
+      burstHearts(hearts3, 22);
+      noSize = 1; // reset for replays
+      no2.style.transform = "scale(1)";
+      no2.style.left = "0px";
+      no2.style.top = "0px";
+      no2.textContent = "no";
+
+      setTimeout(() => {
+        showScreen(3);
+        setHeartsForScreen(3);
+      }, 350);
+    });
+
+    // Screen 4 NO (light troll)
+    no3.addEventListener("click", () => {
+      burstHearts(hearts4, 12);
+      alert("O 😌");
+    });
+
+    // Screen 4 YES -> 5 slideshow
+    yes3.addEventListener("click", () => {
+      burstHearts(hearts4, 28);
+      setTimeout(() => {
+        showScreen(4);
+        setHeartsForScreen(4);
+        startSlideshow();
+        if(appleMusicWrap) appleMusicWrap.style.display = "block";
+      }, 380);
+    });
+
+    // Slideshow
+    const slideshow = document.getElementById("slideshow");
+    const slideImgs = Array.from(slideshow.querySelectorAll("img"));
+
+    let slideIndex = 0;
+    let slideTimer = null;
+
+    function showSlide(i){
+      slideImgs.forEach((img, idx) => img.classList.toggle("active", idx === i));
+    }
+
+    function startSlideshow(){
+      if(slideTimer) clearInterval(slideTimer);
+      slideIndex = 0;
+      showSlide(slideIndex);
+
+      slideTimer = setInterval(() => {
+        slideIndex = (slideIndex + 1) % slideImgs.length;
+        showSlide(slideIndex);
+      }, 1500); // faster = more impact
+    }
+
+    slideshow.addEventListener("click", () => {
+      if(!slideImgs.length) return;
+      slideIndex = (slideIndex + 1) % slideImgs.length;
+      showSlide(slideIndex);
+    });
+
+    restart.addEventListener("click", () => {
+      if(slideTimer) clearInterval(slideTimer);
+      if(appleMusicWrap) appleMusicWrap.style.display = "none";
+      showScreen(0);
+      setHeartsForScreen(0);
+    });
+
+    if(applePlayBtn){
+      applePlayBtn.addEventListener("click", () => {
+        if(!appleMusicWrap) return;
+        const iframe = appleMusicWrap.querySelector("iframe");
+        if(iframe){
+          iframe.focus();
+          iframe.scrollIntoView({ behavior:"smooth", block:"center" });
+        }
+      });
+    }
+  </script>
+</body>
+</html>
