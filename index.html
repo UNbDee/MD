@@ -76,6 +76,10 @@
       margin-top:8px;
       white-space:pre-line;
     }
+    .typewriter{
+      opacity:0;
+      transition:opacity 200ms ease;
+    }
     .row{
       display:flex;
       align-items:center;
@@ -279,7 +283,7 @@
     <section class="screen" id="screen2">
       <div class="card">
         <h1>Just have a few questions for you baby</h1>
-        <p>I know you might have to think hard about this, but do you love someone?</p>
+        <p>I know you might have to think hard about this one, but do you love someone?</p>
 
         <div class="row" style="margin-top:26px;">
           <button class="btn-yes" id="yes1">YES</button>
@@ -289,7 +293,7 @@
           <button class="btn-no noBtn" id="no1" aria-disabled="true">no</button>
         </div>
 
-        <div class="tiny-note">also the “no” may move a bit</div>
+        <div class="tiny-note">also the no may move </div>
       </div>
       <div class="hearts-layer" id="hearts2"></div>
     </section>
@@ -317,7 +321,7 @@
     <!-- Screen 4 -->
     <section class="screen" id="screen4">
       <div class="card finalTheme">
-        <h1>Last question 💌</h1>
+        <h1>Last Question 💌</h1>
         <p>Michael, I know you got a lot going on right now 
           and getting put through it at set. But if you have time 
 Will you be my Valentine? ❤️</p>
@@ -335,8 +339,8 @@ Will you be my Valentine? ❤️</p>
     <!-- Screen 5 -->
     <section class="screen" id="screen5">
       <div class="card finalTheme">
-        <h1>He says YES 😭❤️</h1>
-        <p>I really do love you tho, and I enjoy every moment I'm with you❤️</p>
+        <h1>He says YES ❤️</h1>
+        <p>I really do love you, and I enjoy every moment I'm with you❤️</p>
 
         <div class="slideshow" id="slideshow">
           <img src="1.jpg" alt="Memory 1" class="active"/>
@@ -373,8 +377,50 @@ Will you be my Valentine? ❤️</p>
     const screens = ["screen1","screen2","screen3","screen4","screen5"]
       .map(id => document.getElementById(id));
 
+    // Typewriter setup
+    const typeTargets = Array.from(document.querySelectorAll(".screen h1, .screen p"));
+    typeTargets.forEach(el => {
+      el.dataset.fullText = el.textContent;
+      el.textContent = "";
+      el.classList.add("typewriter");
+    });
+    let typeToken = 0;
+
+    const TYPE_SPEED = 20;
+
+    function typeText(el, token, speed=TYPE_SPEED){
+      return new Promise(resolve => {
+        const text = el.dataset.fullText || "";
+        let i = 0;
+        const tick = () => {
+          if(token !== typeToken) return resolve();
+          if(i === 0) el.style.opacity = "1";
+          el.textContent = text.slice(0, i);
+          i++;
+          if(i <= text.length){
+            setTimeout(tick, speed);
+          }else{
+            resolve();
+          }
+        };
+        tick();
+      });
+    }
+
+    async function typeScreen(screenEl){
+      typeToken++;
+      const token = typeToken;
+      const els = Array.from(screenEl.querySelectorAll("h1, p"));
+      for(const el of els){
+        el.textContent = "";
+        el.style.opacity = "0";
+        await typeText(el, token);
+      }
+    }
+
     function showScreen(n){
       screens.forEach((s,i)=>s.classList.toggle("active", i===n));
+      if(screens[n]) typeScreen(screens[n]);
     }
 
     // Heart spawning
